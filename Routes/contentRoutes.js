@@ -59,4 +59,9 @@ contentRouter.get(
   })
 );
 
+contentRouter.get('/random', isAuth, expressAsyncHandler(async (req, res) => {
+const content = await Content.aggregate([{ $sample: { size: 1 } }]);
+return res.send(content[0])
+}))
+
 export default contentRouter;
