@@ -2,6 +2,8 @@ import express from "express";
 import expressAsyncHandler from "express-async-handler";
 import { isAuth } from "../utils.js";
 import Content from "../Models/ContentModel.js";
+import FeaturedContent from "../Models/FeaturedContentModel.js";
+
 
 const contentRouter = express.Router();
 const PAGE_SIZE = 10;
@@ -59,9 +61,14 @@ contentRouter.get(
   })
 );
 
-contentRouter.get('/random', isAuth, expressAsyncHandler(async (req, res) => {
+contentRouter.get('/random', expressAsyncHandler(async (req, res) => {
 const content = await Content.aggregate([{ $sample: { size: 1 } }]);
 return res.send(content[0])
+}))
+
+contentRouter.get('/featured', expressAsyncHandler(async (req, res) =>{
+const lists = await FeaturedContent.find().populate('contentList').exec();
+return res.send(lists);
 }))
 
 export default contentRouter;
