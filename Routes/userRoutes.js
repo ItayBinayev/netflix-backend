@@ -7,9 +7,9 @@ import { generateToken , isAuth } from "../utils.js";
 const userRouter = express.Router();
 
 userRouter.post("/signin", expressAsyncHandler(async (req, res) => {
-    const user = identifier.includes("@")
-      ? await User.findOne({ email: identifier })
-      : await User.findOne({ username: identifier });
+    const user = req.body.identifier.includes("@")
+      ? await User.findOne({ email: req.body.identifier })
+      : await User.findOne({ username: req.body.identifier });
     if(user)
     {
         if(bcrypt.compareSync(req.body.password, user.password))
