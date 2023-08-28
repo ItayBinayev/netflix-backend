@@ -51,6 +51,24 @@ contentRouter.get(
 );
 
 contentRouter.get(
+  "/movie",
+  // isAuth,
+  expressAsyncHandler(async (req, res) => {
+    const content = await Content.aggregate([{ $match: { isSeries: false } } ,{ $sample: { size: 1 } }]);
+    return res.status(200).send(content[0]);
+  })
+);
+
+contentRouter.get(
+  "/series",
+  // isAuth,
+  expressAsyncHandler(async (req, res) => {
+    const content = await Content.aggregate([{ $match: { isSeries: true } } ,{ $sample: { size: 1 } } ]);
+    return res.status(200).send(content[0]);
+  })
+);
+
+contentRouter.get(
   "/search",
   expressAsyncHandler(async (req, res) => {
     const { query } = req;
@@ -81,5 +99,25 @@ contentRouter.get(
   })
 );
 
+contentRouter.get(
+  "/featured/movies",
+  // isAuth,
+  expressAsyncHandler(async (req, res) => {
+    const featuredContent = await FeaturedContent.find({type: "movies"})
+      .populate("contentList")
+      .exec();
+    return res.status(200).send(featuredContent);
+  })
+);
+contentRouter.get(
+  "/featured/series",
+  // isAuth,
+  expressAsyncHandler(async (req, res) => {
+    const featuredContent = await FeaturedContent.find({type: "series"})
+      .populate("contentList")
+      .exec();
+    return res.status(200).send(featuredContent);
+  })
+);
 
 export default contentRouter;
