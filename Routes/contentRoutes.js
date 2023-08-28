@@ -37,7 +37,7 @@ contentRouter.get('/random', expressAsyncHandler(async (req, res) => {
   return res.send(content[0])
 }))
 
-contentRouter.get('/featured', expressAsyncHandler(async (req, res) =>{
+contentRouter.get('/featured/random', expressAsyncHandler(async (req, res) =>{
   const lists = await FeaturedContent.find().populate('contentList').exec();
   return res.send(lists);
 }))
