@@ -31,18 +31,38 @@ contentRouter.get(
   })
 );
 
+
+contentRouter.get('/random', expressAsyncHandler(async (req, res) => {
+  const content = await Content.aggregate([{ $sample: { size: 1 } }]);
+  return res.send(content[0])
+}))
+
+contentRouter.get('/featured', expressAsyncHandler(async (req, res) =>{
+  const lists = await FeaturedContent.find().populate('contentList').exec();
+  return res.send(lists);
+}))
+
+contentRouter.get(
+  "/genres",
+  expressAsyncHandler(async (req, res) => {
+    const genres = await Content.find().distinct("genre");
+    res.send(genres);
+  })
+);
+
 contentRouter.get(
   "/search",
-  isAuth,
   expressAsyncHandler(async (req, res) => {
     const { query } = req;
     const pageSize = PAGE_SIZE;
     const page = query.page || 1;
     const searchQuery = query.query || "";
 
+
     const queryFilter = searchQuery
       ? { title: { $regex: searchQuery, $options: "i" } }
       : {};
+      
     const contents = await Content.find({
       ...queryFilter,
     })
@@ -61,14 +81,5 @@ contentRouter.get(
   })
 );
 
-contentRouter.get('/random', expressAsyncHandler(async (req, res) => {
-const content = await Content.aggregate([{ $sample: { size: 1 } }]);
-return res.send(content[0])
-}))
-
-contentRouter.get('/featured', expressAsyncHandler(async (req, res) =>{
-const lists = await FeaturedContent.find().populate('contentList').exec();
-return res.send(lists);
-}))
 
 export default contentRouter;
