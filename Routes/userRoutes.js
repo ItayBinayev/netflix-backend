@@ -3,6 +3,7 @@ import expressAsyncHandler from "express-async-handler";
 import bcrypt from "bcryptjs";
 import User from "../Models/UserModel.js";
 import { generateToken , isAuth } from "../utils.js";
+import mongoose from "mongoose";
 
 const userRouter = express.Router();
 
@@ -35,5 +36,44 @@ userRouter.post("/signup", expressAsyncHandler(async (req, res) => {
 userRouter.get("/", isAuth , async (req,res) => {
     res.status(200).send({message: "Ok"})
 });
+
+userRouter.post('/list', expressAsyncHandler(async (req, res) => {
+    const { id , content } = req.body;
+    console.log(`id${id}`);
+    console.log(`content${content}`);
+
+    const user = await User.findById(id);
+    console.log(user)
+    let newList = user.myFavouriteList ? [...user.myFavouriteList] : [];
+    const indexCon = user.myFavouriteList.indexOf(content);
+    if(indexCon === -1)
+    {
+        newList.push(content);
+    }
+    else
+    {
+        newList.splice(indexCon,1);        
+    }
+    user.myFavouriteList = newList;
+    await user.save();
+    await user.populate("myFavouriteList");
+    return res.send(user.myFavouriteList);
+  }))
+
+userRouter.get('/mylist/:id', expressAsyncHandler(async (req, res) => {
+    const { id } = req.params;
+    console.log(id)
+    const user = await User.findById(id);
+   
+    if(!user)
+    {
+        return res.status(404).send({ message: 'User not found' });
+    }
+   
+    await user.populate("myFavouriteList")
+    return res.send(user.myFavouriteList)
+  }))
+
+
 
 export default userRouter;
