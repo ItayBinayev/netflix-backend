@@ -20,6 +20,7 @@ export const isAuth = (req , res ,next) => {
                 return res.status(401).json({message : "Invalid username or password"})
             }
             req.user = decoded;
+            console.log(decoded)
             next();
         })
     }else{
